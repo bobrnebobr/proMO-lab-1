@@ -11,30 +11,32 @@ impl Optimizer {
         let mut rng = ThreadRng::default();
 
         let mut current_x: Vec<f64> = domain.iter().map(|i| i.center()).collect();
-        let mut current_energy = f(current_x.iter().map(|&x| CReal::constant(x)).collect())
-            .get_approx(2).center();
+        let mut current_fitness = f(current_x.iter().map(|&x| CReal::constant(x)).collect());
 
         let mut temp: f64 = 1.0;
-        let min_temp: f64 = 0.00001;
-        let cooling_rate = (min_temp / temp).powf(1.0 / steps as f64);
+        let cooling_rate = (0.00001f64 / temp).powf(1.0 / steps as f64);
 
         for _ in 0..steps {
             let scale = temp * 2.0;
-
             let next_x: Vec<f64> = current_x.iter().enumerate().map(|(i, &x)| {
                 let delta = rng.random_range(-1.0..1.0) * scale;
                 (x + delta).clamp(domain[i].low, domain[i].high)
             }).collect();
 
-            let next_energy = f(next_x.iter().map(|&x| CReal::constant(x)).collect())
-                .get_approx(2).center();
+            let next_fitness = f(next_x.iter().map(|&x| CReal::constant(x)).collect());
 
-            let delta_e = next_energy - current_energy;
-            if delta_e < 0.0 || rng.random_bool((-delta_e / temp).exp().min(1.0)) {
+            let is_better = next_fitness.compare_adaptive(&current_fitness, 15) == std::cmp::Ordering::Less;
+
+            if is_better {
                 current_x = next_x;
-                current_energy = next_energy;
+                current_fitness = next_fitness;
+            } else {
+                let de = next_fitness.get_approx(10).center() - current_fitness.get_approx(10).center();
+                if rng.random_bool((-de / temp).exp().min(1.0)) {
+                    current_x = next_x;
+                    current_fitness = next_fitness;
+                }
             }
-
             temp *= cooling_rate;
         }
         current_x
@@ -45,35 +47,36 @@ impl Optimizer {
         let mut rng = ThreadRng::default();
         let dims = domain.len();
 
-        let mut population: Vec<Vec<f64>> = (0..pop_size).map(|_| {
-            domain.iter().map(|i| rng.random_range(i.low..i.high)).collect()
+        let mut population: Vec<(Vec<f64>, CReal)> = (0..pop_size).map(|_| {
+            let x: Vec<f64> = domain.iter().map(|i| rng.random_range(i.low..i.high)).collect();
+            let creals = x.iter().map(|&val| CReal::constant(val)).collect();
+            let fitness = f(creals);
+            (x, fitness)
         }).collect();
 
         for _ in 0..generations {
-            population.sort_by(|a, b| {
-                let fa = f(a.iter().map(|&x| CReal::constant(x)).collect()).get_approx(2).center();
-                let fb = f(b.iter().map(|&x| CReal::constant(x)).collect()).get_approx(2).center();
-                fa.partial_cmp(&fb).unwrap()
-            });
-
+            population.sort_by(|a, b| a.1.compare_adaptive(&b.1, 15));
             population.truncate(pop_size / 2);
 
             while population.len() < pop_size {
-                let parent1 = &population[rng.random_range(0..population.len())];
-                let parent2 = &population[rng.random_range(0..population.len())];
+                let p1 = &population[rng.random_range(0..population.len())].0;
+                let p2 = &population[rng.random_range(0..population.len())].0;
 
-                let mut child: Vec<f64> = (0..dims).map(|i| {
-                    if rng.random_bool(0.5) { parent1[i] } else { parent2[i] }
+                let mut child_x: Vec<f64> = (0..dims).map(|i| {
+                    if rng.random_bool(0.5) { p1[i] } else { p2[i] }
                 }).collect();
 
                 if rng.random_bool(0.1) {
                     let d = rng.random_range(0..dims);
-                    child[d] = rng.random_range(domain[d].low..domain[d].high);
+                    child_x[d] = rng.random_range(domain[d].low..domain[d].high);
                 }
 
-                population.push(child);
+                let child_creals = child_x.iter().map(|&v| CReal::constant(v)).collect();
+                let child_fitness = f(child_creals);
+
+                population.push((child_x, child_fitness));
             }
         }
-        population[0].clone()
+        population[0].0.clone()
     }
 }

@@ -38,6 +38,17 @@ impl CReal {
             }
         })
     }
+
+    pub fn compare_adaptive(&self, other: &Self, max_n: u32) -> std::cmp::Ordering {
+        for n in 1..=max_n {
+            let a = self.get_approx(n);
+            let b = other.get_approx(n);
+
+            if a.high < b.low { return std::cmp::Ordering::Less; }
+            if b.high < a.low { return std::cmp::Ordering::Greater; }
+        }
+        self.get_approx(max_n).center().partial_cmp(&other.get_approx(max_n).center()).unwrap()
+    }
 }
 
 impl Add for CReal {

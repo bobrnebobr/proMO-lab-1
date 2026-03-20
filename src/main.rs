@@ -15,10 +15,10 @@ fn main() {
     let domain = vec![Interval::new(-2.0, 2.0), Interval::new(-2.0, 2.0)];
 
     println!("--- Simulated Annealing ---");
-    let sa_res = Optimizer::simulated_annealing(rosenbrock, domain.clone(), 1_000_000);
+    let sa_res = Optimizer::simulated_annealing(rosenbrock, domain.clone(), 100_000);
     println!("Result: x = {:.5}, y = {:.5}", sa_res[0], sa_res[1]);
 
     println!("\n--- Genetic Algorithm ---");
-    let ga_res = Optimizer::genetic_algorithm(rosenbrock, domain, 1500, 1000);
+    let ga_res = Optimizer::genetic_algorithm(rosenbrock, domain, 1000, 100);
     println!("Result: x = {:.5}, y = {:.5}", ga_res[0], ga_res[1]);
 }

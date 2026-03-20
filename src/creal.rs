@@ -60,11 +60,7 @@ impl Sub for CReal {
             let a = self.get_approx(n);
             let b = rhs.get_approx(n);
 
-            if a.low - b.low < a.high - b.high {
-                Interval::new(a.low - b.low, a.high - b.high)
-            } else {
-                Interval::new(a.high - b.high, a.low - b.low)
-            }
+            Interval::new(a.low - b.high, a.high - b.low)
         })
     }
 }

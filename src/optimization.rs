@@ -70,7 +70,10 @@ impl Optimizer {
 
                 if rng.random_bool(0.1) {
                     let d = rng.random_range(0..dims);
-                    child_x[d] = rng.random_range(domain[d].low..domain[d].high);
+                    let scale = 0.1;
+
+                    let shift = rng.random_range(-1.0..1.0) * scale;
+                    child_x[d] = (child_x[d] + shift).clamp(domain[d].low, domain[d].high);
                 }
 
                 let child_creals = child_x.iter().map(|&v| CReal::constant(v)).collect();

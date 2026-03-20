@@ -62,8 +62,10 @@ impl Optimizer {
                 let p1 = &population[rng.random_range(0..population.len())].0;
                 let p2 = &population[rng.random_range(0..population.len())].0;
 
+                let alpha = rng.random_range(0.0..1.0);
+
                 let mut child_x: Vec<f64> = (0..dims).map(|i| {
-                    if rng.random_bool(0.5) { p1[i] } else { p2[i] }
+                    alpha * p1[i] + (1.0 - alpha) * p2[i]
                 }).collect();
 
                 if rng.random_bool(0.1) {

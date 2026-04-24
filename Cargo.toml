@@ -1,8 +1,8 @@
 [package]
-name = "lab1"
+name = "lab2"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-num = "0.4.3"
-rand = "0.10.0"
+rand = "0.8"
+plotly = "0.10"

@@ -10,11 +10,13 @@ pub fn genetic_algorithm(
     let mut rng = rand::thread_rng();
     let dims = domain.len();
 
-    let mut pop: Vec<(Vec<f64>, f64)> = (0..pop_size).map(|_| {
-        let x: Vec<f64> = domain.iter().map(|(l, h)| rng.gen_range(*l..*h)).collect();
-        let fx = f(&x);
-        (x, fx)
-    }).collect();
+    let mut pop: Vec<(Vec<f64>, f64)> = (0..pop_size)
+        .map(|_| {
+            let x: Vec<f64> = domain.iter().map(|(l, h)| rng.gen_range(*l..*h)).collect();
+            let fx = f(&x);
+            (x, fx)
+        })
+        .collect();
 
     let mut hist = History::new("Genetic");
 
@@ -27,7 +29,9 @@ pub fn genetic_algorithm(
             let p1 = &pop[rng.gen_range(0..pop.len())].0.clone();
             let p2 = &pop[rng.gen_range(0..pop.len())].0.clone();
             let alpha = rng.gen_range(0.0..1.0);
-            let mut child: Vec<f64> = (0..dims).map(|i| alpha * p1[i] + (1.0 - alpha) * p2[i]).collect();
+            let mut child: Vec<f64> = (0..dims)
+                .map(|i| alpha * p1[i] + (1.0 - alpha) * p2[i])
+                .collect();
             if rng.gen_bool(0.1) {
                 let d = rng.gen_range(0..dims);
                 let shift = rng.gen_range(-0.1..0.1);

@@ -1,5 +1,5 @@
+use crate::gradient::{norm, numerical_gradient};
 use crate::{History, ObjFn};
-use crate::gradient::{numerical_gradient, norm};
 
 pub fn sgd_momentum(
     f: ObjFn,

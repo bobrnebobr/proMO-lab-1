@@ -1,19 +1,19 @@
 use crate::{History, ObjFn};
 use plotly::{
-    common::{Mode, Title, Marker, Line, Anchor, Font},
-    layout::{Axis, AxisType, GridPattern, LayoutGrid, Annotation},
     Contour, Layout, Plot, Scatter,
+    common::{Anchor, Font, Line, Marker, Mode, Title},
+    layout::{Annotation, Axis, AxisType, GridPattern, LayoutGrid},
 };
 use std::path::Path;
 
 fn method_color(method: &str) -> &'static str {
     match method {
-        "sgd_momentum"        => "#1f77b4",
-        "adam"                => "#ff7f0e",
-        "bfgs"                => "#2ca02c",
+        "sgd_momentum" => "#1f77b4",
+        "adam" => "#ff7f0e",
+        "bfgs" => "#2ca02c",
         "simulated_annealing" => "#d62728",
-        "genetic"             => "#9467bd",
-        _                     => "#7f7f7f",
+        "genetic" => "#9467bd",
+        _ => "#7f7f7f",
     }
 }
 
@@ -27,8 +27,16 @@ pub fn plot_convergence(
 
     for (method, hist) in runs {
         let xs: Vec<usize> = (0..hist.values.len()).collect();
-        let ys: Vec<f64> = hist.values.iter()
-            .map(|&v| if v.is_finite() { (v - f_star).abs().max(1e-16) } else { f64::NAN })
+        let ys: Vec<f64> = hist
+            .values
+            .iter()
+            .map(|&v| {
+                if v.is_finite() {
+                    (v - f_star).abs().max(1e-16)
+                } else {
+                    f64::NAN
+                }
+            })
             .collect();
 
         let trace = Scatter::new(xs, ys)
@@ -65,10 +73,15 @@ pub fn plot_trajectories_2d(
 ) {
     let (xmin, xmax, ymin, ymax) = bounds;
     let n = 120usize;
-    let xs: Vec<f64> = (0..=n).map(|i| xmin + (xmax - xmin) * i as f64 / n as f64).collect();
-    let ys: Vec<f64> = (0..=n).map(|j| ymin + (ymax - ymin) * j as f64 / n as f64).collect();
+    let xs: Vec<f64> = (0..=n)
+        .map(|i| xmin + (xmax - xmin) * i as f64 / n as f64)
+        .collect();
+    let ys: Vec<f64> = (0..=n)
+        .map(|j| ymin + (ymax - ymin) * j as f64 / n as f64)
+        .collect();
 
-    let z: Vec<Vec<f64>> = ys.iter()
+    let z: Vec<Vec<f64>> = ys
+        .iter()
         .map(|&y| xs.iter().map(|&x| f(&[x, y])).collect())
         .collect();
 
@@ -111,11 +124,15 @@ pub fn plot_trajectories_2d(
 
         let margin_x = (xmax - xmin) * 0.05;
         let margin_y = (ymax - ymin) * 0.05;
-        let traj_x: Vec<f64> = hist.points.iter()
+        let traj_x: Vec<f64> = hist
+            .points
+            .iter()
             .filter(|p| p.len() >= 2 && p[0].is_finite() && p[1].is_finite())
             .map(|p| p[0].clamp(xmin - margin_x, xmax + margin_x))
             .collect();
-        let traj_y: Vec<f64> = hist.points.iter()
+        let traj_y: Vec<f64> = hist
+            .points
+            .iter()
             .filter(|p| p.len() >= 2 && p[0].is_finite() && p[1].is_finite())
             .map(|p| p[1].clamp(ymin - margin_y, ymax + margin_y))
             .collect();

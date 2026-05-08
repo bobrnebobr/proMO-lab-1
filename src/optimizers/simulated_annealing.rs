@@ -1,11 +1,7 @@
 use crate::{History, ObjFn};
 use rand::Rng;
 
-pub fn simulated_annealing(
-    f: ObjFn,
-    domain: &[(f64, f64)],
-    steps: usize,
-) -> History {
+pub fn simulated_annealing(f: ObjFn, domain: &[(f64, f64)], steps: usize) -> History {
     let mut rng = rand::thread_rng();
 
     let mut x: Vec<f64> = domain.iter().map(|(l, h)| 0.5 * (l + h)).collect();
@@ -19,10 +15,14 @@ pub fn simulated_annealing(
 
     for _ in 0..steps {
         let scale = temp * 2.0;
-        let x_new: Vec<f64> = x.iter().enumerate().map(|(i, xi)| {
-            let delta = rng.gen_range(-1.0..1.0) * scale;
-            (xi + delta).clamp(domain[i].0, domain[i].1)
-        }).collect();
+        let x_new: Vec<f64> = x
+            .iter()
+            .enumerate()
+            .map(|(i, xi)| {
+                let delta = rng.gen_range(-1.0..1.0) * scale;
+                (xi + delta).clamp(domain[i].0, domain[i].1)
+            })
+            .collect();
 
         let f_new = f(&x_new);
         let accept = if f_new < fx {

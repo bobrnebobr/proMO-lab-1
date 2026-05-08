@@ -1,5 +1,5 @@
+use crate::gradient::{norm, numerical_gradient};
 use crate::{History, ObjFn};
-use crate::gradient::{numerical_gradient, norm};
 
 fn line_search(f: ObjFn, x: &[f64], direction: &[f64], g: &[f64]) -> f64 {
     let c = 1e-4;
@@ -10,7 +10,11 @@ fn line_search(f: ObjFn, x: &[f64], direction: &[f64], g: &[f64]) -> f64 {
     let g_dot_d: f64 = g.iter().zip(direction).map(|(a, b)| a * b).sum();
 
     for _ in 0..50 {
-        let x_new: Vec<f64> = x.iter().zip(direction).map(|(xi, di)| xi + alpha * di).collect();
+        let x_new: Vec<f64> = x
+            .iter()
+            .zip(direction)
+            .map(|(xi, di)| xi + alpha * di)
+            .collect();
         if f(&x_new) <= fx + c * alpha * g_dot_d {
             return alpha;
         }

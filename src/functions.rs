@@ -17,7 +17,10 @@ pub fn rosenbrock(x: &[f64]) -> f64 {
 /// Глобальный минимум: x_i = 0, значение 0.
 pub fn rastrigin(x: &[f64]) -> f64 {
     let n = x.len() as f64;
-    10.0 * n + x.iter().map(|xi| xi * xi - 10.0 * (2.0 * PI * xi).cos()).sum::<f64>()
+    10.0 * n
+        + x.iter()
+            .map(|xi| xi * xi - 10.0 * (2.0 * PI * xi).cos())
+            .sum::<f64>()
 }
 
 /// Функция Изома.

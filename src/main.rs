@@ -39,7 +39,7 @@ fn compare_optimizers(name: &str, dataset: &data_loader::Dataset, hidden_size: u
 
     let num_features = dataset.train_x.ncols();
     let num_classes = dataset.train_y.ncols();
-    let dims = vec![num_features, hidden_size, num_classes];
+    let dims = vec![num_features, hidden_size, hidden_size / 2, num_classes];
 
     let nn = NeuralNetwork::new(dims.clone());
     let temp_nn = RefCell::new(NeuralNetwork::new(dims.clone()));
@@ -90,16 +90,21 @@ fn main() {
     let (f1_a1, f1_g1, hists1) = compare_optimizers("Dataset 1 (d1)", &d1, 8);
     let (f1_a2, f1_g2, hists2) = compare_optimizers("Dataset 2 (d2)", &d2, 12);
 
-
     let hists_ref1: Vec<&History> = hists1.iter().collect();
     let _ = plotters::plot_loss_history(&hists_ref1, "loss_d1.png", "Loss Curve - Dataset 1");
 
     let hists_ref2: Vec<&History> = hists2.iter().collect();
     let _ = plotters::plot_loss_history(&hists_ref2, "loss_d2.png", "Loss Curve - Dataset 2");
 
+    /*let d3 = data_loader::load_csv("src/data/dataset3.csv", 2, 2).expect("d3 load error");
+    let (f1_a3, f1_g3, hists3) = compare_optimizers("Dataset 3 (d3)", &d3, 16);
+    let hists_ref3: Vec<&History> = hists3.iter().collect();
+    let _ = plotters::plot_loss_history(&hists_ref3, "loss_d3.png", "Loss Curve - Dataset 3");
+     let best_f1_d3 = f1_a3.max(f1_g3);*/
+
     let best_f1_d1 = f1_a1.max(f1_g1);
     let best_f1_d2 = f1_a2.max(f1_g2);
     let current_score = 0.3 * best_f1_d1 + 0.3 * best_f1_d2;
 
-    println!("\nТекущий балл: {:.4}", current_score);
+    println!("\nТекущий скор: {:.4}", current_score);
 }

@@ -1,12 +1,3 @@
-/// Подбор гиперпараметров нейросети генетическим алгоритмом.
-///
-/// Ищет оптимальные значения:
-///   - hidden1: размер первого скрытого слоя  [4, 64]
-///   - hidden2: размер второго скрытого слоя  [4, 32]
-///   - lr:      learning rate для Adam         [1e-4, 0.1]
-///
-/// Fitness = -F1 на валидационной выборке (минимизируем).
-
 use std::cell::RefCell;
 use crate::{
     data_loader::Dataset,
@@ -24,8 +15,6 @@ pub struct HyperParams {
 }
 
 pub fn search(dataset: &Dataset, pop_size: usize, generations: usize) -> HyperParams {
-    // Домен: [hidden1_min, hidden1_max], [hidden2_min, hidden2_max], [lr_min, lr_max]
-    // hidden кодируем как f64, при использовании округляем до usize
     let domain: Vec<(f64, f64)> = vec![
         (4.0,  64.0),   // hidden1
         (4.0,  32.0),   // hidden2
@@ -60,13 +49,13 @@ pub fn search(dataset: &Dataset, pop_size: usize, generations: usize) -> HyperPa
         let pred = nn_eval.forward(&dataset.test_x);
         let report = metrics::calculate_f1(&pred, &dataset.test_y);
 
-        -report.f1  // минимизируем отрицательный F1
+        -report.f1
     };
 
     use rand::Rng;
     let mut rng = rand::thread_rng();
 
-    // Инициализация популяции
+    // популяция
     let mut pop: Vec<(Vec<f64>, f64)> = (0..pop_size)
         .map(|_| {
             let x: Vec<f64> = domain.iter().map(|(l, h)| rng.gen_range(*l..*h)).collect();
